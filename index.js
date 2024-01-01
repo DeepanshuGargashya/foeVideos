@@ -12,6 +12,7 @@ const app = express();
 const port = 4000;
 
 import db from "./db.js";
+const specialCharsRegex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/g;
 
 app.use(
   bodyParser.urlencoded({
@@ -71,7 +72,9 @@ app.use((err, req, res, next) => {
   } else if (celebrate.isCelebrateError(err)) {
     const validationError = err.details.get("body");
     const errorMessage = validationError
-      ? validationError.details.map((detail) => detail.message).join(", ")
+      ? validationError.details
+          .map((detail) => detail.message.replace(specialCharsRegex, ""))
+          .join(", ")
       : "Validation error";
 
     return APIResponse.badRequest(res, errorMessage, {});

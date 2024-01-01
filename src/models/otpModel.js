@@ -1,13 +1,24 @@
 import mongoose from "mongoose";
 
 const OTPModel = new mongoose.Schema({
+  name: {
+    type: String,
+    required: false,
+  },
+
   email: {
     type: String,
     required: true,
   },
-  pwd: {
+  newEmail: {
     type: String,
-    required: true,
+    required: false,
+  },
+
+  upEmail: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
 
   otp: {

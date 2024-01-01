@@ -11,23 +11,41 @@ export default {
     logger.debug("Generate otp input body: %o", req);
     console.log(req);
     console.log("generate log2");
-
-    const generateOTPService = Container.get("authService");
-    generateOTPService
-      .generateOtp(req.body)
-      .then((result) => {
-        logger.info("Generate otp end with success.", result);
-        return APIResponse.success(res, "Success", result);
-      })
-      .catch((e) => {
-        if (e instanceof ErrorHandler.BadError) {
-          return APIResponse.badRequest(res, e.message, "");
-        } else {
-          logger.error("Generate otp end with error.", e);
-          return next(e);
-          // return APIResponse.badRequest(res, "Something went wrong", "");
-        }
-      });
+    if (req.body.googleAuth) {
+      const newUserGoogleAuth = Container.get("userService");
+      newUserGoogleAuth
+        .createUser(req.body)
+        .then((result) => {
+          logger.info("Generate otp end with success.", result);
+          return APIResponse.success(res, "Success", result);
+        })
+        .catch((e) => {
+          if (e instanceof ErrorHandler.BadError) {
+            return APIResponse.badRequest(res, e.message, "");
+          } else {
+            logger.error("Generate otp end with error.", e);
+            return next(e);
+            // return APIResponse.badRequest(res, "Something went wrong", "");
+          }
+        });
+    } else {
+      const generateOTPService = Container.get("authService");
+      generateOTPService
+        .generateOtp(req.body)
+        .then((result) => {
+          logger.info("Generate otp end with success.", result);
+          return APIResponse.success(res, "Success", result);
+        })
+        .catch((e) => {
+          if (e instanceof ErrorHandler.BadError) {
+            return APIResponse.badRequest(res, e.message, "");
+          } else {
+            logger.error("Generate otp end with error.", e);
+            return next(e);
+            // return APIResponse.badRequest(res, "Something went wrong", "");
+          }
+        });
+    }
   },
   verifyOTP: async (req, res, next) => {
     try {

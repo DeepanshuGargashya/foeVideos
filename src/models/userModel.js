@@ -1,11 +1,22 @@
 import mongoose from "mongoose";
 
 const UserModel = new mongoose.Schema({
-  email: {
+  name: {
     type: String,
-    required: true,
+    required: false,
   },
-  pwd: {
+  mobile: {
+    type: String,
+    required: false,
+    default: null,
+  },
+  dob: {
+    type: String,
+    required: false,
+    default: null,
+  },
+
+  email: {
     type: String,
     required: false,
   },

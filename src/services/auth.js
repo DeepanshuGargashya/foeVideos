@@ -12,25 +12,44 @@ export default class AuthService {
     var pin = MathUtil.getOTP();
     logger.debug("generated pin is %o", pin);
     logger.debug("body is %o ", body);
-    var result = await OtpModel.create({
+    const userService = Container.get("userService");
+    return await OtpModel.deleteMany({
       email: body.emailId,
-      pwd: body.password,
-      otp: pin,
-    })
-      .then((value) => {
-        logger.debug("created success %o", value);
-        logger.info("generated otp success");
-        sendMail("your foeVideos account OTP", pin, body.emailId);
-        // return value;
-        return `otp sent to ${body.emailId}`;
-      })
-      .catch((e) => {
-        logger.debug("error in %o ", e);
-        logger.error(e);
+    }).then(async (delRes) => {
+      return await userService
+        .checkUserExist(body.emailId)
+        .then(async (userExist) => {
+          if (!userExist) {
+            return await OtpModel.create({
+              name: body.name,
+              email: body.emailId,
 
-        throw e;
-      });
-    return result;
+              otp: pin,
+            })
+              .then((value) => {
+                logger.debug("created success %o", value);
+                logger.info("generated otp success");
+                sendMail("your foeVideos account OTP", pin, body.emailId);
+                // return value;
+                return `otp sent to ${body.emailId}`;
+              })
+              .catch((e) => {
+                logger.debug("error in %o ", e);
+                logger.error(e);
+
+                throw e;
+              });
+          } else {
+            throw new ErrorHandler.BadError("user already exist");
+          }
+        })
+        .catch((e) => {
+          logger.debug("error in %o ", e);
+          logger.error(e);
+
+          throw e;
+        });
+    });
   }
 
   async verifyOtp(body) {
@@ -38,23 +57,30 @@ export default class AuthService {
 
     logger.debug("body is %o ", body);
     var result = await OtpModel.findOne({ email: body.emailId, otp: body.otp })
-      .then((value) => {
+      .then(async (value) => {
         if (value) {
           logger.debug("created success %o", value);
           logger.info("generated otp success");
           // sendMail("your foeVideos account OTP", pin, body.emailId);
-          return userModel
+          return await userModel
             .create({
+              name: value.name,
               email: value.email,
-              pwd: value.pwd,
             })
-            .then((value) => {
-              return OtpModel.findOneAndDelete({
+            .then(async (value) => {
+              return await OtpModel.findOneAndDelete({
                 email: body.emailId,
                 otp: body.otp,
               })
                 .then((delRes) => {
-                  return value;
+                  const updatedObject = {
+                    userId: value._id,
+                    ...value._doc,
+                  };
+
+                  // Optionally, omit the old field name
+                  const { _id, __v, ...finalObject } = updatedObject;
+                  return finalObject;
                 })
                 .catch((e) => {
                   throw new ErrorHandler.BadError(
