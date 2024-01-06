@@ -16,9 +16,14 @@ export default {
       .items(Joi.string())
       .min(1)
       .messages({
-        "string.pattern.base": "tag is required",
+        "string.base": "tag should be a string",
+        "any.required": "tag is required",
       })
       .required(),
+    title: Joi.string().required().messages({
+      "string.base": "title should be a string",
+      "any.required": "title is required",
+    }),
 
     video: Joi.any()
 

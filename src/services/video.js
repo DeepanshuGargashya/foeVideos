@@ -74,7 +74,11 @@ export default class VideoService {
         // var url = CustomUrl(result.secure_url, "customValue");
         // logger.debug("custom url is %o", url);
         videoModel
-          .create({ tag: body.body.tag, vid: result.secure_url })
+          .create({
+            tag: body.body.tag,
+            vid: result.secure_url,
+            title: body.body.title,
+          })
           .then((res) => {
             return res;
           })

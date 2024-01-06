@@ -2,26 +2,36 @@ import { Joi } from "celebrate";
 export default {
   getUserDetail: Joi.object({
     userId: Joi.string().required().min(24).max(24).messages({
-      "string.pattern.base": "userId is required",
+      "string.pattern.base": "user is not valid",
+
+      "any.required": "userId is required",
     }),
   }),
   updateUserDetail: Joi.object({
     userId: Joi.string().required().min(24).max(24).messages({
-      "string.pattern.base": "userId is required",
+      "string.base": "userId should be string",
+      "string.pattern.base": "userId is not valid",
+      "any.required": "userId is required",
     }),
     name: Joi.string()
       .messages({
-        "string.pattern.base": "name is required",
+        "string.base": "name should be string",
+
+        "any.required": "name is required",
       })
       .required(),
     mobile: Joi.string()
       .messages({
-        "string.pattern.base": "mobile is required",
+        "string.base": "mobile should be string",
+
+        "any.required": "mobile is required",
       })
       .required(),
     dob: Joi.string()
       .messages({
-        "string.pattern.base": "dob is required",
+        "string.base": "dob should be string",
+
+        "any.required": "dob is required",
       })
       .required(),
   }),
@@ -36,19 +46,19 @@ export default {
 
     userId: Joi.string().required().min(24).max(24).messages({
       "string.pattern.base": "user is not valid",
+
+      "any.required": "userId is required",
     }),
   }),
   updateEmailVerifyOtp: Joi.object({
-    otp: Joi.string()
-      .min(4)
-      .max(4)
-      .messages({
-        "string.pattern.base": "Invalid otp",
-      })
-      .required(),
+    otp: Joi.string().min(4).max(4).required().messages({
+      "string.pattern.base": "Invalid otp",
+    }),
 
     userId: Joi.string().required().min(24).max(24).messages({
       "string.pattern.base": "user is not valid",
+
+      "any.required": "userId is required",
     }),
   }),
 };
