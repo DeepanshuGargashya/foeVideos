@@ -2,13 +2,10 @@ import celebrate, { Joi } from "celebrate";
 import { ErrorHandler } from "../../../utility/index.js";
 export default {
   generateOTP: Joi.object({
-    googleAuth: Joi.boolean()
-
-      .required()
-      .messages({
-        "string.base": "googleAuth should be a string",
-        "any.required": "googleAuth is required",
-      }),
+    googleAuth: Joi.boolean().required().messages({
+      "string.base": "googleAuth is boolean",
+      "any.required": "googleAuth is required",
+    }),
 
     emailId: Joi.string()
       .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
@@ -24,8 +21,8 @@ export default {
   }),
   verifyOTP: Joi.object({
     otp: Joi.string()
-      .min(4)
-      .max(4)
+      .min(5)
+      .max(5)
       .messages({
         "string.pattern.base": "Invalid otp",
       })

@@ -12,36 +12,22 @@ export default class AuthService {
     var pin = MathUtil.getOTP();
     logger.debug("generated pin is %o", pin);
     logger.debug("body is %o ", body);
-    const userService = Container.get("userService");
+
     return await OtpModel.deleteMany({
       email: body.emailId,
     }).then(async (delRes) => {
-      return await userService
-        .checkUserExist(body.emailId)
-        .then(async (userExist) => {
-          if (!userExist) {
-            return await OtpModel.create({
-              name: body.name,
-              email: body.emailId,
+      return await OtpModel.create({
+        name: body.name,
+        email: body.emailId,
 
-              otp: pin,
-            })
-              .then((value) => {
-                logger.debug("created success %o", value);
-                logger.info("generated otp success");
-                sendMail("your foeVideos account OTP", pin, body.emailId);
-                // return value;
-                return `otp sent to ${body.emailId}`;
-              })
-              .catch((e) => {
-                logger.debug("error in %o ", e);
-                logger.error(e);
-
-                throw e;
-              });
-          } else {
-            throw new ErrorHandler.BadError("user already exist");
-          }
+        otp: pin,
+      })
+        .then((value) => {
+          logger.debug("created success %o", value);
+          logger.info("generated otp success");
+          sendMail("your foeVideos account OTP", pin, body.emailId);
+          // return value;
+          return `otp sent to ${body.emailId}`;
         })
         .catch((e) => {
           logger.debug("error in %o ", e);
@@ -49,6 +35,8 @@ export default class AuthService {
 
           throw e;
         });
+
+      // })
     });
   }
 
@@ -56,40 +44,87 @@ export default class AuthService {
     logger.info("Verify OTP Service Start");
 
     logger.debug("body is %o ", body);
+    const userService = Container.get("userService");
     var result = await OtpModel.findOne({ email: body.emailId, otp: body.otp })
       .then(async (value) => {
         if (value) {
           logger.debug("created success %o", value);
           logger.info("generated otp success");
           // sendMail("your foeVideos account OTP", pin, body.emailId);
-          return await userModel
-            .create({
-              name: value.name,
-              email: value.email,
-            })
-            .then(async (value) => {
-              return await OtpModel.findOneAndDelete({
-                email: body.emailId,
-                otp: body.otp,
-              })
-                .then((delRes) => {
-                  const updatedObject = {
-                    userId: value._id,
-                    ...value._doc,
-                  };
+          return await userService
+            .checkUserExist(body.emailId)
+            .then(async (userExist) => {
+              if (!userExist) {
+                return await userModel
+                  .create({
+                    name: value.name,
+                    email: value.email,
+                  })
+                  .then(async (value) => {
+                    return await OtpModel.findOneAndDelete({
+                      email: body.emailId,
+                      otp: body.otp,
+                    })
+                      .then((delRes) => {
+                        const updatedObject = {
+                          userId: value._id,
+                          ...value._doc,
+                        };
 
-                  // Optionally, omit the old field name
-                  const { _id, __v, ...finalObject } = updatedObject;
-                  return finalObject;
+                        // Optionally, omit the old field name
+                        const { _id, __v, ...finalObject } = updatedObject;
+                        return finalObject;
+                      })
+                      .catch((e) => {
+                        throw new ErrorHandler.BadError(
+                          "user not created, try again"
+                        );
+                      });
+                  })
+                  .catch((e) => {
+                    throw new ErrorHandler.BadError(
+                      "user not created, try again"
+                    );
+                  });
+              } else {
+                return await OtpModel.findOneAndDelete({
+                  email: body.emailId,
+                  otp: body.otp,
                 })
-                .catch((e) => {
-                  throw new ErrorHandler.BadError(
-                    "user not created, try again"
-                  );
-                });
-            })
-            .catch((e) => {
-              throw new ErrorHandler.BadError("user not created, try again");
+                  .then(async (delRes) => {
+                    console.log("dele res");
+                    console.log(delRes);
+                    return await userModel
+                      .findOne({ email: body.emailId })
+                      .then((value) => {
+                        if (value) {
+                          console.log(value);
+                          const updatedObject = {
+                            userId: value._id,
+                            ...value._doc,
+                          };
+
+                          // Optionally, omit the old field name
+                          const { _id, __v, ...finalObject } = updatedObject;
+                          return finalObject;
+                        } else {
+                          throw new ErrorHandler.BadError(
+                            "user not exist, try again"
+                          );
+                        }
+                      })
+                      .catch((e) => {
+                        throw new ErrorHandler.BadError(
+                          "user not exist, try again"
+                        );
+                      });
+                  })
+                  .catch((e) => {
+                    throw new ErrorHandler.BadError(
+                      "user not created, try again"
+                    );
+                  });
+              }
             });
         } else {
           throw new ErrorHandler.BadError("Invalid OTP");

@@ -226,7 +226,26 @@ export default class UserService {
               throw e;
             });
         } else {
-          throw new ErrorHandler.BadError("user already exist");
+          return await userModel
+            .findOne({ email: body.emailId })
+            .then((value) => {
+              if (value) {
+                console.log(value);
+                const updatedObject = {
+                  userId: value._id,
+                  ...value._doc,
+                };
+
+                // Optionally, omit the old field name
+                const { _id, __v, ...finalObject } = updatedObject;
+                return finalObject;
+              } else {
+                throw new ErrorHandler.BadError("user not exist, try again");
+              }
+            })
+            .catch((e) => {
+              throw new ErrorHandler.BadError("user not exist, try again");
+            });
         }
       })
       .catch((e) => {
