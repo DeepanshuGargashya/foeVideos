@@ -9,7 +9,7 @@ import httpContext from "express-http-context";
 
 import cors from "cors";
 const app = express();
-const port = 8080;
+const port = 4000;
 
 import db from "./db.js";
 const specialCharsRegex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/g;
