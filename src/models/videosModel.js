@@ -21,7 +21,7 @@ const VideoModel = new mongoose.Schema({
     type: String,
     required: true,
   },
-  timeStamp: {
+  duration: {
     type: String,
     required: true,
   },

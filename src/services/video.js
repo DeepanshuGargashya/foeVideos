@@ -110,7 +110,7 @@ export default class VideoService {
             title: body.body.title,
             size: result.bytes,
             createdAt: result.created_at,
-            timeStamp: this.secondsToHHMMSS(result.duration),
+            duration: this.secondsToHHMMSS(result.duration),
           })
           .then((res) => {
             return res;
