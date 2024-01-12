@@ -3,7 +3,8 @@ import { APIResponse, ErrorHandler } from "../../../utility/index.js";
 import logger from "../../../loaders/logger.js";
 import { Container } from "typedi";
 import VideoService from "../../../services/video.js";
-
+import path, { dirname } from "path";
+import fs from "fs";
 export default {
   getVideos: (req, res, next) => {
     logger.info("Get video Start");
@@ -89,10 +90,10 @@ export default {
 
   saveVideo: (req, res, next) => {
     logger.info("Save video Start");
-
+    // return APIResponse.success(res, "Success", "success");
     const getVideoService = Container.get("videoService");
     console.log("service registered");
-    getVideoService
+    return getVideoService
       .saveVideo(req)
       .then((result) => {
         logger.info("save video end with success.", result);
@@ -107,5 +108,47 @@ export default {
           // return APIResponse.badRequest(res, "Something went wrong", "");
         }
       });
+  },
+  getEachVideo: (req, res, next) => {
+    console.log("entere cont start");
+    const filename = req.params.filename;
+    const filePath = path.join("./videos", filename);
+    console.log(filePath);
+    if (fs.existsSync(filePath)) {
+      const stat = fs.statSync(filePath);
+      const fileSize = stat.size;
+      const range = req.headers.range;
+
+      if (range) {
+        // Serve partial content (range request)
+        const parts = range.replace(/bytes=/, "").split("-");
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+
+        const chunksize = end - start + 1;
+        const file = fs.createReadStream(filePath, { start, end });
+        const head = {
+          "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+          "Accept-Ranges": "bytes",
+          "Content-Length": chunksize,
+          "Content-Type": "video/mp4", // Adjust the content type based on your file type
+        };
+
+        res.writeHead(206, head);
+        file.pipe(res);
+      } else {
+        // Serve whole content
+        const head = {
+          "Content-Length": fileSize,
+          "Content-Type": "video/mp4", // Adjust the content type based on your file type
+        };
+
+        res.writeHead(200, head);
+        fs.createReadStream(filePath).pipe(res);
+      }
+    } else {
+      // File not found
+      return APIResponse.badRequest(res, "File Not Found", "");
+    }
   },
 };

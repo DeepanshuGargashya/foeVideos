@@ -16,5 +16,6 @@ route.post(
 );
 route.get("/getVideos/:page?/:size?/:all?", [], controller.getVideos);
 route.get("/getVideosByTag/:tag", [], controller.getVideosByTag);
+// route.get("/videos/:filename", [], controller.getEachVideo);
 
 export default route;

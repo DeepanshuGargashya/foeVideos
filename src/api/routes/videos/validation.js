@@ -5,6 +5,9 @@ import { Joi } from "celebrate";
 export default {
   upload: multer({
     storage: multer.diskStorage({
+      // destination: function (req, file, cb) {
+      //   cb(null, "./videos/");
+      // },
       filename: function (req, file, cb) {
         cb(null, file.originalname);
       },

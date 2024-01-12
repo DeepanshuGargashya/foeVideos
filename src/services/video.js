@@ -1,12 +1,7 @@
-import { Container, Service, Inject } from "typedi";
-import jwt from "jsonwebtoken";
+import { Container } from "typedi";
 import logger from "../loaders/logger.js";
-import OtpModel from "../models/otpModel.js";
-import { MathUtil, ErrorHandler, CustomUrl } from "../utility/index.js";
-import sendMail from "../utility/sendMail.js";
-import userModel from "../models/userModel.js";
+import { cloudinary, Pagination, CustomUrl } from "../utility/index.js";
 import videoModel from "../models/videosModel.js";
-import { CustomUrl as cloudinary, Pagination } from "../utility/index.js";
 
 export default class VideoService {
   async getVideoByTag(req) {
@@ -59,25 +54,63 @@ export default class VideoService {
         throw e;
       });
   }
+  secondsToHHMMSS(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
 
+    const formattedHours = hours < 10 ? `0${hours}` : hours;
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+    const formattedSeconds =
+      remainingSeconds < 10 ? `0${remainingSeconds}` : remainingSeconds;
+
+    return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+  }
   async saveVideo(body) {
     logger.info("save Video Service Start");
     logger.debug("the path of video is %o", body.file.path);
 
     return await cloudinary.uploader
       .upload(body.file.path, { resource_type: "video" })
-      .then((result) => {
+      .then(async (result) => {
         // logger.debug("result is %o", result);
         // logger.debug("secure url is  %o", result.secure_url);
         // logger.debug("body tag is %o", body);
         // logger.debug("body tag is %o", body.body.tag);
         // var url = CustomUrl(result.secure_url, "customValue");
         // logger.debug("custom url is %o", url);
-        videoModel
+        // console.log(result.access_control);
+        // console.log(result.access_mode);
+        // console.log(result.bytes); // size in bytes (for mb we can use (bytes/1024)/1024)
+        // console.log(result.colors);
+        // console.log(result.context);
+        // console.log(result.created_at); // gives created date and time stamp
+        // console.log(result.etag); // give some unique id
+        // console.log(result.format); // gives format of video
+        // console.log(result.height); // gives print
+        // console.log(result.metadata);
+        // console.log(result.moderation);
+        // console.log(result.original_filename); // gives file name
+        // console.log(result.pages); // return 0 because there is no page in video
+        // console.log(result.placeholder); // give false
+        // console.log(result.public_id); // give unique od
+        // console.log(result.resource_type); // give that it is video or image
+        // console.log(result.signature); // give some unique id ( it is also called signature id)
+        // console.log(result.secure_url); // return https url which is used to access the media
+        // console.log(result.tags); // return tags
+        // console.log(result.type); // returns upload or whatever
+        // console.log(result.url); // return http url which is used to access the media
+        // console.log(result.version);
+        // console.log(result.width); // gives width of image
+        console.log(result.duration); // gives width of image
+        return await videoModel
           .create({
             tag: body.body.tag,
             vid: result.secure_url,
             title: body.body.title,
+            size: result.bytes,
+            createdAt: result.created_at,
+            timeStamp: this.secondsToHHMMSS(result.duration),
           })
           .then((res) => {
             return res;

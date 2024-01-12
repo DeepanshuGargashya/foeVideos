@@ -13,6 +13,18 @@ const VideoModel = new mongoose.Schema({
     type: [String],
     required: true,
   },
+  size: {
+    type: Number,
+    required: true,
+  },
+  createdAt: {
+    type: String,
+    required: true,
+  },
+  timeStamp: {
+    type: String,
+    required: true,
+  },
 });
 
 const videoModel = mongoose.model("videos", VideoModel);
