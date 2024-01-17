@@ -11,7 +11,8 @@ export default {
     // console.log("generate log1");
     // logger.debug("Generate otp input body: %o", req);
     // console.log(req);
-    // console.log("generate log2");
+    console.log("req.token");
+    console.log(req.token);
     const { page, size, all } = req.params;
     const { search } = req.query;
     const input = {

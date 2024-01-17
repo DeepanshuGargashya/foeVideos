@@ -11,7 +11,7 @@ export default {
 
     const getUserDetailService = Container.get("userService");
     getUserDetailService
-      .getUserDetail(req.query.userId)
+      .getUserDetail(req.token.userId)
       .then((result) => {
         logger.info("Get user detail end with success.", result);
         console.log("result", result);
@@ -34,7 +34,10 @@ export default {
     logger.info("update user detail Start");
 
     logger.debug("update user detail input body: %o", req.body);
-
+    req.body = {
+      ...req.body,
+      userId: req.token.userId,
+    };
     const updateUserDetailService = Container.get("userService");
     updateUserDetailService
       .updateUserDetail(req.body)
@@ -60,7 +63,10 @@ export default {
   updateEmailGenerate: (req, res, next) => {
     logger.info("Generate OTP Start");
     logger.debug("Generate otp input body: %o", req.body);
-
+    req.body = {
+      ...req.body,
+      userId: req.token.userId,
+    };
     const generateOTPService = Container.get("userService");
     generateOTPService
       .generateOtpUpdateEmail(req.body)
@@ -89,7 +95,10 @@ export default {
       logger.debug("Generate otp input body: %o", req);
       // console.log(req);
       // console.log("generate log2");
-
+      req.body = {
+        ...req.body,
+        userId: req.token.userId,
+      };
       const verifyOTPService = Container.get("userService");
       const verifyOTPInfo = await verifyOTPService.verifyOtpUpdateEmail(
         req.body
