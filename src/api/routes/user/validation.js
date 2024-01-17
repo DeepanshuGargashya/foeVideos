@@ -36,7 +36,7 @@ export default {
   }),
 
   updateEmailSendOtp: Joi.object({
-    emailId: Joi.string()
+    newEmail: Joi.string()
       .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
       .messages({
         "string.email": "Invalid email",

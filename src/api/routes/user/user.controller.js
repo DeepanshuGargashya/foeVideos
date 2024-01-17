@@ -119,4 +119,35 @@ export default {
       }
     }
   },
+  updateNewEmailVerify: async (req, res, next) => {
+    try {
+      logger.info("verify OTP Start");
+      // console.log("generate log1");
+      logger.debug("Generate otp input body: %o", req);
+      // console.log(req);
+      // console.log("generate log2");
+      req.body = {
+        ...req.body,
+        userId: req.token.userId,
+      };
+      const verifyOTPService = Container.get("userService");
+      const verifyOTPInfo = await verifyOTPService.verifyOtpUpdateNewEmail(
+        req.body
+      );
+      if (verifyOTPInfo) {
+        logger.info("Verify otp end with success.", verifyOTPInfo);
+        return APIResponse.success(res, "Success", verifyOTPInfo);
+      } else {
+        return APIResponse.notFound(res, "please request first", {});
+      }
+    } catch (e) {
+      if (e instanceof ErrorHandler.BadError) {
+        return APIResponse.badRequest(res, e.message, "");
+      } else {
+        logger.error("verify otp end with error.", e);
+        return next(e);
+        // return APIResponse.badRequest(res, "Something went wrong", "");
+      }
+    }
+  },
 };

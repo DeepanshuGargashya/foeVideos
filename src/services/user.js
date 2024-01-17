@@ -84,16 +84,16 @@ export default class UserService {
             .then(async (delRes) => {
               return await OtpModel.create({
                 email: value.email,
-                newEmail: body.emailId,
+                newEmail: body.newEmail,
                 upEmail: true,
                 otp: pin,
               })
                 .then((value) => {
                   logger.debug("created success %o", value);
                   logger.info("generated otp success");
-                  sendMail("your foeVideos account OTP", pin, body.emailId);
+                  sendMail("your foeVideos account OTP", pin, value.email);
                   // return value;
-                  return `otp sent to ${body.emailId}`;
+                  return `otp sent to ${value.email}`;
                 })
                 .catch((e) => {
                   logger.debug("error in %o ", e);
@@ -116,6 +116,59 @@ export default class UserService {
   }
 
   async verifyOtpUpdateEmail(body) {
+    logger.info("Verify OTP Service Start");
+    var pin = MathUtil.getOTP();
+    logger.debug("generated pin is %o", pin);
+    logger.debug("body is %o ", body);
+    return await userModel
+      .findById(body.userId)
+      .then((userRes) => {
+        logger.debug("success to get user response %o ", userRes);
+        if (userRes) {
+          return OtpModel.findOneAndUpdate(
+            {
+              email: userRes.email,
+              otp: body.otp,
+              upEmail: true,
+            },
+            { otp: pin }
+          )
+            .then((value) => {
+              if (value) {
+                logger.debug("get otp result success %o", value);
+                logger.info("verify otp success");
+                // sendMail("your foeVideos account OTP", pin, body.emailId);
+                sendMail(
+                  "your foeVideos verify account OTP",
+                  pin,
+                  value.newEmail
+                );
+                // return value;
+                return `otp sent to ${value.newEmail}`;
+              } else {
+                throw new ErrorHandler.BadError("Invalid OTP");
+              }
+            })
+            .catch((e) => {
+              logger.debug("error in %o ", e);
+              logger.error(e);
+
+              throw e;
+            });
+        } else {
+          logger.info("error return null");
+          return null;
+        }
+      })
+      .catch((e) => {
+        logger.debug("error in %o ", e);
+        logger.error(e);
+
+        throw e;
+      });
+  }
+
+  async verifyOtpUpdateNewEmail(body) {
     logger.info("Verify OTP Service Start");
 
     logger.debug("body is %o ", body);
@@ -181,6 +234,7 @@ export default class UserService {
         throw e;
       });
   }
+
   async checkUserExist(email) {
     return await userModel
       .findOne({

@@ -39,4 +39,12 @@ route.post(
   isAuth,
   controller.updateEmailVerify
 );
+route.post(
+  "/updateUserDetail/updateNewEmailVerifyOtp",
+  celebrate({
+    [Segments.BODY]: validation.updateEmailVerifyOtp,
+  }),
+  isAuth,
+  controller.updateNewEmailVerify
+);
 export default route;
