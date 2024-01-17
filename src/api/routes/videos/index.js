@@ -1,5 +1,5 @@
 import { Router } from "express";
-// import validation from "./validation.js";
+import isAuth from "../../middlewares/isAuth.js";
 import controller from "./video.controller.js";
 
 // const upload = require("./validation.js");
@@ -14,7 +14,7 @@ route.post(
   validation.upload.single("video"),
   controller.saveVideo
 );
-route.get("/getVideos/:page?/:size?/:all?", [], controller.getVideos);
+route.get("/getVideos/:page?/:size?/:all?", [], isAuth, controller.getVideos);
 route.get("/getVideosByTag/:tag", [], controller.getVideosByTag);
 // route.get("/videos/:filename", [], controller.getEachVideo);
 

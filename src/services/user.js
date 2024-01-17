@@ -4,6 +4,7 @@ import sendMail from "../utility/sendMail.js";
 import { MathUtil, ErrorHandler } from "../utility/index.js";
 import userModel from "../models/userModel.js";
 import OtpModel from "../models/otpModel.js";
+import AuthService from "./auth.js";
 
 export default class UserService {
   getUserDetail(userId) {
@@ -217,7 +218,12 @@ export default class UserService {
 
               // Optionally, omit the old field name
               const { _id, __v, ...finalObject } = updatedObject;
-              return finalObject;
+              const authService = Container.get("authService");
+              // authService.generateTokentest(finalObject);
+              return {
+                token: authService.generateToken(finalObject),
+                ...finalObject,
+              };
             })
             .catch((e) => {
               logger.debug("error in %o ", e);
@@ -230,6 +236,7 @@ export default class UserService {
             .findOne({ email: body.emailId })
             .then((value) => {
               if (value) {
+                console.log("value");
                 console.log(value);
                 const updatedObject = {
                   userId: value._id,
@@ -238,7 +245,12 @@ export default class UserService {
 
                 // Optionally, omit the old field name
                 const { _id, __v, ...finalObject } = updatedObject;
-                return finalObject;
+                const authService = Container.get("authService");
+                // authService.generateTokentest(finalObject);
+                return {
+                  token: authService.generateToken(finalObject),
+                  ...finalObject,
+                };
               } else {
                 throw new ErrorHandler.BadError("user not exist, try again");
               }

@@ -7,6 +7,8 @@ import sendMail from "../utility/sendMail.js";
 import userModel from "../models/userModel.js";
 
 export default class AuthService {
+  JWT_SECRET = "p4sta.w1th-b0logn3s3-s@uce";
+  JWT_ALGO = "HS256";
   async generateOtp(body) {
     logger.info("Generate OTP Service Start");
     var pin = MathUtil.getOTP();
@@ -73,7 +75,10 @@ export default class AuthService {
 
                         // Optionally, omit the old field name
                         const { _id, __v, ...finalObject } = updatedObject;
-                        return finalObject;
+                        return {
+                          token: this.generateToken(finalObject),
+                          ...finalObject,
+                        };
                       })
                       .catch((e) => {
                         throw new ErrorHandler.BadError(
@@ -106,7 +111,10 @@ export default class AuthService {
 
                           // Optionally, omit the old field name
                           const { _id, __v, ...finalObject } = updatedObject;
-                          return finalObject;
+                          return {
+                            token: this.generateToken(finalObject),
+                            ...finalObject,
+                          };
                         } else {
                           throw new ErrorHandler.BadError(
                             "user not exist, try again"
@@ -137,6 +145,42 @@ export default class AuthService {
         throw e;
       });
     return result;
+  }
+
+  generateToken(user) {
+    console.log("succes in auth.js ");
+
+    const today = new Date();
+    console.log("succes in today");
+    const exp = new Date(today);
+    console.log("succes in exp");
+    exp.setDate(today.getDate() + 60);
+    console.log("succes in exp.setDate done");
+
+    /**
+     * A JWT means JSON Web Token, so basically it's a json that is _hashed_ into a string
+     * The cool thing is that you can add custom properties a.k.a metadata
+     * Here we are adding the userId, role and name
+     * Beware that the metadata is public and can be decoded without _the secret_
+     * but the client cannot craft a JWT to fake a userId
+     * because it doesn't have _the secret_ to sign it
+     * more information here: https://softwareontheroad.com/you-dont-need-passport
+     */
+    logger.info(`Sign JWT for userId: ${user.userId}`);
+    return jwt.sign(
+      {
+        userId: user.userId, // We are gonna use this in the middleware 'isAuth'
+        name: user.name,
+        email: user.email,
+        exp: exp.getTime() / 1000,
+      },
+      this.JWT_SECRET
+    );
+  }
+  generateTokentest(user) {
+    console.log(user);
+    console.log(this.JWT_SECRET);
+    return;
   }
 }
 Container.set("authService", new AuthService());
