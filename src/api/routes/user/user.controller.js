@@ -7,7 +7,7 @@ export default {
   getUserDetail: (req, res, next) => {
     logger.info("Get user detail Start");
 
-    logger.debug("Get user detail input body: %o", req.query);
+    logger.debug("Get user detail token body: %o", req.token);
 
     const getUserDetailService = Container.get("userService");
     getUserDetailService

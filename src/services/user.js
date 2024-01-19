@@ -276,7 +276,7 @@ export default class UserService {
               // authService.generateTokentest(finalObject);
               return {
                 token: authService.generateToken(finalObject),
-                ...finalObject,
+                // ...finalObject,
               };
             })
             .catch((e) => {
@@ -303,7 +303,7 @@ export default class UserService {
                 // authService.generateTokentest(finalObject);
                 return {
                   token: authService.generateToken(finalObject),
-                  ...finalObject,
+                  // ...finalObject,
                 };
               } else {
                 throw new ErrorHandler.BadError("user not exist, try again");

@@ -75,9 +75,10 @@ export default class AuthService {
 
                         // Optionally, omit the old field name
                         const { _id, __v, ...finalObject } = updatedObject;
+
                         return {
                           token: this.generateToken(finalObject),
-                          ...finalObject,
+                          // ...finalObject,
                         };
                       })
                       .catch((e) => {
@@ -113,7 +114,7 @@ export default class AuthService {
                           const { _id, __v, ...finalObject } = updatedObject;
                           return {
                             token: this.generateToken(finalObject),
-                            ...finalObject,
+                            // ...finalObject,
                           };
                         } else {
                           throw new ErrorHandler.BadError(
@@ -171,6 +172,8 @@ export default class AuthService {
       {
         userId: user.userId, // We are gonna use this in the middleware 'isAuth'
         name: user.name,
+        dob: user.dob,
+        mobile: user.mobile,
         email: user.email,
         exp: exp.getTime() / 1000,
       },
