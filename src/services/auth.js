@@ -21,13 +21,13 @@ export default class AuthService {
       return await OtpModel.create({
         name: body.name,
         email: body.emailId,
-        // otp: pin,
-        otp: "99999",
+        otp: pin,
+        // otp: "99999",
       })
         .then((value) => {
           logger.debug("created success %o", value);
           logger.info("generated otp success");
-          // sendMail("your foeVideos account OTP", pin, body.emailId);
+          sendMail("your foeVideos account OTP", pin, body.emailId);
           // return value;
           return `otp sent to ${body.emailId}`;
         })

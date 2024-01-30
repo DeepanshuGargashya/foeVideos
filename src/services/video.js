@@ -123,5 +123,13 @@ export default class VideoService {
         throw err;
       });
   }
+  async saveVideoCloud(body) {
+    logger.info("save Video Service Start");
+    logger.debug("the path of video is %o", body.file.path);
+
+    return await await storage.bucket(bucketName).upload(body.file.path, {
+      destination: destinationFileName,
+    });
+  }
 }
 Container.set("videoService", new VideoService());
