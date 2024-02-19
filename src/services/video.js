@@ -11,8 +11,20 @@ export default class VideoService {
       .find({ tag: req.params.tag })
       .then((value) => {
         logger.debug("get video success %o", value);
+        return videoModel
+          .find({ tag: { $ne: req.params.tag } })
+          .then((noTagValue) => {
+            logger.debug("no tag value is : %o", noTagValue);
+            logger.debug("returning value is  %o", [...value, ...noTagValue]);
 
-        return value;
+            return [...value, ...noTagValue];
+          })
+          .catch((err) => {
+            logger.debug("error in %o ", err);
+            logger.error(err);
+
+            throw err;
+          });
       })
       .catch((e) => {
         logger.debug("error in %o ", e);
